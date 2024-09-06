@@ -1,7 +1,10 @@
-import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
+from common_interface.srv import Register
+from sensor_msgs.msg import Image as RosImage  # 使用ROS Image消息類型
 import random
+import rclpy
+import time
 
 class RobotNode(Node):
     def __init__(self):
@@ -19,6 +22,7 @@ class RobotNode(Node):
         store_memory_topic = f'/{self.robot_name}/store_memory'
         retrieve_memory_topic = f'/{self.robot_name}/retrieve_memory'
         memory_output_topic = f'/{self.robot_name}/memory_output'
+        desktop_world_topic = f'/desktop_world/{self.robot_name}/world_state'
 
         self.memory = ""  # 用於存儲檢索到的記憶
 
@@ -56,16 +60,51 @@ class RobotNode(Node):
         self.memory_retrieve_publisher_ = self.create_publisher(String, retrieve_memory_topic, 10)
 
         # 設置一個計時器，每隔2秒觸發一次
-        self.timer = self.create_timer(2, self.life_cycle)
+        self.timer = self.create_timer(1.0, self.life_cycle)
+
+        self.desktop_world_service_name = 'register_to_desktop_world'
+
+        self.register_to_desktop_world_client = self.create_client(Register, self.desktop_world_service_name)
+
+        # 註冊到世界節點
+        self.register_robot_to_world()
+
+        # 動態訂閱世界狀態
+        self.dynamic_subscriber = None
 
         # 初始化狀態
         self.state = "IDLE"
         self.get_logger().info(f'{self.robot_name} RobotNode is up and running with high-frequency timer...')
 
+    def register_robot_to_world(self):
+        # 向世界節點註冊機器人
+        request = Register.Request()
+        request.robot_name = self.robot_name
+        self.register_to_desktop_world_client.wait_for_service()
+        future = self.register_to_desktop_world_client.call_async(request)
+        future.add_done_callback(self.registration_callback)
+
+    def registration_callback(self, future):
+        response = future.result()
+        self.get_logger().info(f'Registration response: {response.message}')
+        
+        # 註冊成功後，訂閱世界狀態話題
+        if response.success:
+            topic_name = f'/desktop_world/{self.robot_name}/world_state'
+            self.dynamic_subscriber = self.create_subscription(RosImage, topic_name, self.dynamic_subscription_callback, 10)
+            self.get_logger().info(f'Subscribed to topic: {topic_name}')
+        else:
+            self.get_logger().error(f"Failed to register: {response.message}")
+
+    def dynamic_subscription_callback(self, msg):
+        # 處理收到的動態訂閱消息
+        self.get_logger().info(f'Received world state update')
+
     def life_cycle(self):
         """
         模擬機器人持續運行的生命週期，在這裡決定何時與其他模組交互。
         """
+
         if self.state == "IDLE":
             self.decide_next_action()
         elif self.state == "EXPLORE":
@@ -77,9 +116,10 @@ class RobotNode(Node):
 
     def decide_next_action(self):
         # 模擬隨機選擇下一個動作
-        next_action = random.choice(["EXPLORE", "THINK", "REMEMBER", "IDLE"])
-        self.get_logger().info(f'Decided next action: {next_action}')
-        self.state = next_action
+        # next_action = random.choice(["EXPLORE", "THINK", "REMEMBER", "IDLE"])
+        # self.get_logger().info(f'Decided next action: {next_action}')
+        # self.state = next_action
+        self.state = "IDLE"
 
     def request_vision_input(self):
         # 發送消息到vision_module來獲取圖像處理結果
@@ -127,8 +167,13 @@ class RobotNode(Node):
         self.get_logger().info(f'Received from brain_module: {msg.data}')
         # 根據收到的消息決定下一個動作（可擴展）
         
+        memory = {
+            "content": msg.data,
+            "timestamp": time.time()
+        }
+
         # 存儲思考結果到記憶中
-        self.store_memory(msg.data)
+        self.store_memory(str(memory))
 
     def vision_callback(self, msg):
         self.get_logger().info(f'Received from vision_module: {msg.data}')

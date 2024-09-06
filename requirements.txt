@@ -3,3 +3,4 @@ opencv-python
 google-generativeai
 aiohttp
 schedule
+numpy==1.23.0

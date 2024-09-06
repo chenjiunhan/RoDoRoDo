@@ -50,11 +50,20 @@ def generate_launch_description():
         parameters=[{'robot_name': robot_name}]  # 使用 parameters 傳遞參數
     )
 
+    # 創建world_module節點
+    world_node = Node(
+        package='world_module',
+        executable='desktop_world_node',
+        name='world_node',
+        output='screen'
+    )
+
     # 將所有節點添加到LaunchDescription中
     return LaunchDescription([
         robot_name_arg,
         brain_node,
         vision_node,
         memory_node,
-        robot_node
+        robot_node,
+        world_node
     ])
