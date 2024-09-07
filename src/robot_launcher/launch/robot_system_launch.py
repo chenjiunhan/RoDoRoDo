@@ -58,6 +58,27 @@ def generate_launch_description():
         output='screen'
     )
 
+    visualizer_node = Node(
+        package='visualizer_module',
+        executable='visualizer_node',
+        name='visualizer_node',
+        output='screen'
+    )
+
+    object_detection_node = Node(
+        package='vision_module',
+        executable='object_detection_node',
+        name='object_detection_node',
+        output='screen'
+    )
+
+    object_detection_visualizer_node = Node(
+        package='visualizer_module',
+        executable='object_detection_visualizer_node',
+        name='object_detection_visualizer_node',
+        output='screen'
+    )
+
     # 將所有節點添加到LaunchDescription中
     return LaunchDescription([
         robot_name_arg,
@@ -65,5 +86,8 @@ def generate_launch_description():
         vision_node,
         memory_node,
         robot_node,
-        world_node
+        world_node,
+        visualizer_node,
+        object_detection_node,
+        object_detection_visualizer_node
     ])

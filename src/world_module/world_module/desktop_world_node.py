@@ -21,20 +21,24 @@ class DesktopWorldNode(Node):
         # 創建服務來允許機器人註冊
         self.create_service(Register, 'register_to_desktop_world', self.handle_register_request)
 
-        self.timer = self.create_timer(2, self.publish_desktop_state)
+        self.FPS = 60
+
+        self.timer = self.create_timer(1.0 / self.FPS, self.publish_desktop_state)
         self.get_logger().info('DesktopWorldNode has been started.')
 
         # 設置截圖區域
         sidebar_width = 80
         screen_width, screen_height = pyautogui.size()
-        start_x, start_y = sidebar_width + screen_width // 2, 0
-        capture_region = (start_x, start_y, screen_width // 2 - sidebar_width, screen_height)
+        start_x, start_y = 1246, 92
+        width = 420
+        height = 314
+        capture_region = (start_x, start_y, width, height)
         self._capture_region = capture_region
 
         # 初始化cv_bridge
         self.bridge = CvBridge()
 
-        self.default_publisher = self.create_publisher(RosImage, '/twitter_world/default/world_state', 10)
+        self.default_publisher = self.create_publisher(RosImage, '/desktop_world/default/world_state', 10)
 
     def publish_desktop_state(self):
         """

@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'vision_module'
+package_name = 'visualizer_module'
 
 setup(
     name=package_name,
@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'vision_node = vision_module.vision_node:main',
-            'object_detection_node = vision_module.object_detection_node:main'
+            'visualizer_node = visualizer_module.visualizer_node:main',
+            'object_detection_visualizer_node = visualizer_module.object_detection_visualizer_node:main'
         ],
     },
 )

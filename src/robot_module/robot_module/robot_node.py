@@ -22,8 +22,8 @@ class RobotNode(Node):
         store_memory_topic = f'/{self.robot_name}/store_memory'
         retrieve_memory_topic = f'/{self.robot_name}/retrieve_memory'
         memory_output_topic = f'/{self.robot_name}/memory_output'
-        desktop_world_topic = f'/desktop_world/{self.robot_name}/world_state'
-
+        
+        self.desktop_world_topic = f'/desktop_world/{self.robot_name}/world_state'
         self.memory = ""  # 用於存儲檢索到的記憶
 
         # 訂閱來自brain_module的消息
@@ -46,6 +46,13 @@ class RobotNode(Node):
             memory_output_topic,
             self.memory_callback,
             10)
+        
+        # 訂閱來自Yolo8的偵測結果
+        self.yolo8_subscription = self.create_subscription(
+            String,
+            '/vision/YOLO8_output',
+            self.yolo8_callback,
+            10)
 
         # 創建發布者，將控制命令發送到brain_module
         self.brain_publisher_ = self.create_publisher(String, brain_input_topic, 10)
@@ -58,6 +65,9 @@ class RobotNode(Node):
 
         # 創建發布者，將記憶檢索請求發送到memory_module
         self.memory_retrieve_publisher_ = self.create_publisher(String, retrieve_memory_topic, 10)
+
+        # 創建發布者，將圖片發送到Yolo8
+        self.yolo8_publisher_ = self.create_publisher(RosImage, '/vision/YOLO8_input', 10)
 
         # 設置一個計時器，每隔2秒觸發一次
         self.timer = self.create_timer(1.0, self.life_cycle)
@@ -90,15 +100,16 @@ class RobotNode(Node):
         
         # 註冊成功後，訂閱世界狀態話題
         if response.success:
-            topic_name = f'/desktop_world/{self.robot_name}/world_state'
-            self.dynamic_subscriber = self.create_subscription(RosImage, topic_name, self.dynamic_subscription_callback, 10)
-            self.get_logger().info(f'Subscribed to topic: {topic_name}')
+            #topic_name = f'/desktop_world/{self.robot_name}/world_state'
+            self.dynamic_subscriber = self.create_subscription(RosImage, self.desktop_world_topic, self.dynamic_subscription_callback, 10)
+            self.get_logger().info(f'Subscribed to topic: {self.desktop_world_topic}')
         else:
             self.get_logger().error(f"Failed to register: {response.message}")
 
     def dynamic_subscription_callback(self, msg):
         # 處理收到的動態訂閱消息
         self.get_logger().info(f'Received world state update')
+        self.yolo8_publisher_.publish(msg)
 
     def life_cycle(self):
         """
@@ -122,6 +133,7 @@ class RobotNode(Node):
         self.state = "IDLE"
 
     def request_vision_input(self):
+
         # 發送消息到vision_module來獲取圖像處理結果
         vision_msg = String()
         vision_msg.data = 'Capture and analyze image'
@@ -183,6 +195,10 @@ class RobotNode(Node):
         self.get_logger().info(f'Received memory data: {msg.data}')
         self.memory = msg.data
         # 根據檢索到的記憶進行下一步動作（可擴展）
+
+    def yolo8_callback(self, msg):
+        self.get_logger().info(f'Received YOLO8 detection result: {msg.data}')
+        # 根據收到的消息決定下一個動作（可擴展）
 
 def main(args=None):
     rclpy.init(args=args)
