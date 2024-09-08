@@ -4,9 +4,9 @@ from sensor_msgs.msg import Image as RosImage
 from cv_bridge import CvBridge  # 用於ROS和OpenCV之間轉換
 import cv2
 
-class VisionVisualizerNode(Node):
+class SemanticSegmentationVisualizerNode(Node):
     def __init__(self):
-        super().__init__('vision_visualizer_node')
+        super().__init__('semantic_segmentation_visualizer_node')
 
         # 創建CvBridge對象
         self.bridge = CvBridge()
@@ -14,10 +14,11 @@ class VisionVisualizerNode(Node):
         # 訂閱來自vision_module的圖像數據
         self.vision_subscription = self.create_subscription(
             RosImage,
-            '/desktop_world/default_robot/world_state',  # 替換成你的實際主題名稱
+            '/vision/semantic_segmentation_output_image',  # 替換成你的實際主題名稱
             self.vision_callback,
             10)
-        
+        self.get_logger().info('Subscribed to /vision/semantic_segmentation_output_image topic')
+
         # 初始化窗口
         cv2.namedWindow("Vision Module Image", cv2.WINDOW_NORMAL)
         # 設置窗口位置 (x, y)
@@ -25,11 +26,9 @@ class VisionVisualizerNode(Node):
         height = 300
         base_y = 30
         start_x = 0
-        start_y = base_y
+        start_y = base_y + height * 2
         cv2.moveWindow("Vision Module Image", start_x, start_y)
         cv2.resizeWindow("Vision Module Image", width, height)
-
-        self.get_logger().info('Subscribed to vision_output_topic')
 
     def vision_callback(self, msg):
         # 使用CvBridge將ROS Image消息轉換為OpenCV格式
@@ -41,7 +40,7 @@ class VisionVisualizerNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = VisionVisualizerNode()
+    node = SemanticSegmentationVisualizerNode()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -35,10 +35,16 @@ class ObjectDetectionNode(Node):
         # 使用 CvBridge 將 ROS Image 轉換為 OpenCV 格式
         cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
+        # 將 BGR 轉換為 RGB，因為 PyTorch 模型預期輸入為 RGB 格式
+        rgb_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+
         # 執行物件偵測
-        results = self.model.predict(cv_image)
+        results = self.model.predict(rgb_image, verbose=False)
 
         annotated_frame = results[0].plot()
+
+        # 將 RGB 轉換回 BGR，因為 ROS 需要 BGR 格式
+        annotated_frame = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)
 
         # 將 OpenCV 格式的影像轉換為 ROS Image
         ros_image = self.bridge.cv2_to_imgmsg(annotated_frame, encoding="bgr8")

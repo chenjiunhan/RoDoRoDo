@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'vision_node = vision_module.vision_node:main',
-            'object_detection_node = vision_module.object_detection_node:main'
+            'object_detection_node = vision_module.object_detection_node:main',
+            'semantic_segmentation_node = vision_module.semantic_segmentation_node:main'
         ],
     },
 )

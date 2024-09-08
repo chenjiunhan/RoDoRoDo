@@ -17,6 +17,18 @@ class ObjectDetectionVisualizerNode(Node):
             '/vision/YOLO8_output_image',  # 替換成你的實際主題名稱
             self.vision_callback,
             10)
+        
+        # 初始化窗口
+        cv2.namedWindow("Vision Module Image", cv2.WINDOW_NORMAL)
+        # 設置窗口位置 (x, y)
+        width = 400
+        height = 300
+        base_y = 30
+        start_x = 0
+        start_y = base_y + height * 1
+        cv2.moveWindow("Vision Module Image", start_x, start_y)
+        cv2.resizeWindow("Vision Module Image", width, height)
+
         self.get_logger().info('Subscribed to /vision/YOLO8_output_image topic')
 
     def vision_callback(self, msg):

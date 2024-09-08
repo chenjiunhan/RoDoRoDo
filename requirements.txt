@@ -6,3 +6,8 @@ schedule
 numpy==1.23.0
 ultralytics
 matplotlib
+huggingface_hub
+pygetwindow
+pycocotools
+onnxruntime
+onnx

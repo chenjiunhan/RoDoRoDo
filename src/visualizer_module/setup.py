@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'visualizer_node = visualizer_module.visualizer_node:main',
-            'object_detection_visualizer_node = visualizer_module.object_detection_visualizer_node:main'
+            'object_detection_visualizer_node = visualizer_module.object_detection_visualizer_node:main',
+            'semantic_segmentation_visualizer_node = visualizer_module.semantic_segmentation_visualizer_node:main',
         ],
     },
 )

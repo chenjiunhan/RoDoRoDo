@@ -20,7 +20,8 @@ def generate_launch_description():
         executable='brain_node',
         name='brain_node',
         output='screen',
-        parameters=[{'robot_name': robot_name}]  # 使用 parameters 傳遞參數
+        parameters=[{'robot_name': robot_name}],  # 使用 parameters 傳遞參數
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     # 創建vision_module節點
@@ -29,7 +30,9 @@ def generate_launch_description():
         executable='vision_node',
         name='vision_node',
         output='screen',
-        parameters=[{'robot_name': robot_name}]  # 使用 parameters 傳遞參數
+        parameters=[{'robot_name': robot_name}],  # 使用 parameters 傳遞參數
+        arguments=['--ros-args', '--log-level', 'ERROR']
+        
     )
 
     # 創建memory_module節點
@@ -38,7 +41,8 @@ def generate_launch_description():
         executable='memory_node',
         name='memory_node',
         output='screen',
-        parameters=[{'robot_name': robot_name}]  # 使用 parameters 傳遞參數
+        parameters=[{'robot_name': robot_name}],  # 使用 parameters 傳遞參數
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     # 創建robot_module節點
@@ -47,7 +51,8 @@ def generate_launch_description():
         executable='robot_node',
         name='robot_node',
         output='screen',
-        parameters=[{'robot_name': robot_name}]  # 使用 parameters 傳遞參數
+        parameters=[{'robot_name': robot_name}],  # 使用 parameters 傳遞參數
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     # 創建world_module節點
@@ -55,28 +60,48 @@ def generate_launch_description():
         package='world_module',
         executable='desktop_world_node',
         name='world_node',
-        output='screen'
+        output='screen',
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     visualizer_node = Node(
         package='visualizer_module',
         executable='visualizer_node',
         name='visualizer_node',
-        output='screen'
+        output='screen', 
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     object_detection_node = Node(
         package='vision_module',
         executable='object_detection_node',
         name='object_detection_node',
-        output='screen'
+        output='screen',
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     object_detection_visualizer_node = Node(
         package='visualizer_module',
         executable='object_detection_visualizer_node',
         name='object_detection_visualizer_node',
-        output='screen'
+        output='screen',
+        arguments=['--ros-args', '--log-level', 'ERROR']
+    )
+
+    semantic_segmentation_node = Node(
+        package='vision_module',
+        executable='semantic_segmentation_node',
+        name='semantic_segmentation_node',
+        output='screen',
+        arguments=['--ros-args', '--log-level', 'INFO']
+    )
+
+    semantic_segmentation_visualizer_node = Node(
+        package='visualizer_module',
+        executable='semantic_segmentation_visualizer_node',
+        name='semantic_segmentation_visualizer_node',
+        output='screen',
+        arguments=['--ros-args', '--log-level', 'ERROR']
     )
 
     # 將所有節點添加到LaunchDescription中
@@ -89,5 +114,7 @@ def generate_launch_description():
         world_node,
         visualizer_node,
         object_detection_node,
-        object_detection_visualizer_node
+        object_detection_visualizer_node,
+        semantic_segmentation_node,
+        semantic_segmentation_visualizer_node
     ])

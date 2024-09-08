@@ -53,6 +53,13 @@ class RobotNode(Node):
             '/vision/YOLO8_output',
             self.yolo8_callback,
             10)
+        
+        # 訂閱來自Semantic Segmentation的偵測結果
+        self.semantic_segmentation_subscription = self.create_subscription(
+            String,
+            '/vision/semantic_segmentation_output',
+            self.semantic_segmentation_callback,
+        10)
 
         # 創建發布者，將控制命令發送到brain_module
         self.brain_publisher_ = self.create_publisher(String, brain_input_topic, 10)
@@ -68,6 +75,9 @@ class RobotNode(Node):
 
         # 創建發布者，將圖片發送到Yolo8
         self.yolo8_publisher_ = self.create_publisher(RosImage, '/vision/YOLO8_input', 10)
+
+        # 創建發布者，將圖片發送到Semantic Segmentation
+        self.semantic_segmentation_publisher_ = self.create_publisher(RosImage, '/vision/semantic_segmentation_input', 10)
 
         # 設置一個計時器，每隔2秒觸發一次
         self.timer = self.create_timer(1.0, self.life_cycle)
@@ -110,6 +120,7 @@ class RobotNode(Node):
         # 處理收到的動態訂閱消息
         self.get_logger().info(f'Received world state update')
         self.yolo8_publisher_.publish(msg)
+        self.semantic_segmentation_publisher_.publish(msg)
 
     def life_cycle(self):
         """
@@ -198,6 +209,10 @@ class RobotNode(Node):
 
     def yolo8_callback(self, msg):
         self.get_logger().info(f'Received YOLO8 detection result: {msg.data}')
+        # 根據收到的消息決定下一個動作（可擴展）
+
+    def semantic_segmentation_callback(self, msg):
+        self.get_logger().info(f'Received Semantic Segmentation result: {msg.data}')
         # 根據收到的消息決定下一個動作（可擴展）
 
 def main(args=None):

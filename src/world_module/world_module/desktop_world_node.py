@@ -29,8 +29,8 @@ class DesktopWorldNode(Node):
         # 設置截圖區域
         sidebar_width = 80
         screen_width, screen_height = pyautogui.size()
-        start_x, start_y = 1246, 92
-        width = 420
+        start_x, start_y = 1400, 92
+        width = 426
         height = 314
         capture_region = (start_x, start_y, width, height)
         self._capture_region = capture_region
